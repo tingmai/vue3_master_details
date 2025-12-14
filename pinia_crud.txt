@@ -319,10 +319,12 @@ components/ProductCard.vue
 
 
 
+
 <template>
-  <div class="product-card">
+  <div class="col-3 p-3">
+    <div class="card p-3">
     <div class="product-image">
-      <img :src="product.image" :alt="product.name" />
+      <img :src="product.image" :alt="product.name" class="img-thumbnail"  style="width:300px;height:250px;"/>
       <div class="product-category">{{ product.category }}</div>
     </div>
     
@@ -331,19 +333,22 @@ components/ProductCard.vue
       <p class="product-price">${{ product.price.toFixed(2) }}</p>
       
       <div class="product-actions">
-        <router-link :to="`/product/${product.id}`" class="view-btn">
+        <router-link :to="`/product/${product.id}`" class="btn btn-primary">
           View Details
-        </router-link>
-        <button @click="addToCart" class="add-to-cart-btn">
+        </router-link> &nbsp;&nbsp;
+        <button @click="addToCart" class="btn btn-warning">
           Add to Cart
         </button>
+      </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { useProductStore } from '@/stores/productStore'
+import { useProductStore } from '../stores/productStore'
+
+
 
 const props = defineProps({
   product: {
@@ -377,6 +382,7 @@ views/ProductList.vue
       
       <div class="category-filter">
         <button 
+          class="btn btn-primary m-2"
           v-for="category in categories" 
           :key="category"
           @click="selectedCategory = category"
@@ -390,12 +396,15 @@ views/ProductList.vue
         <p>No products found in this category.</p>
       </div>
       
-      <div v-else class="products-grid">
+      <div v-else >
+        <div class="row">
         <ProductCard 
           v-for="product in filteredProducts" 
           :key="product.id" 
           :product="product"
         />
+       </div>
+
       </div>
     </div>
   </div>
@@ -403,8 +412,9 @@ views/ProductList.vue
 
 <script setup>
 import { ref, computed } from 'vue'
-import ProductCard from '@/components/ProductCard.vue'
-import { useProductStore } from '@/stores/productStore'
+import ProductCard from '../components/ProductCard.vue'
+import { useProductStore } from '../stores/productStore'
+
 
 const productStore = useProductStore()
 const selectedCategory = ref('All')
@@ -414,6 +424,8 @@ const filteredProducts = computed(() =>
   productStore.filteredProducts(selectedCategory.value)
 )
 </script>
+
+
 
 
 
@@ -559,6 +571,149 @@ onMounted(() => {
   }
 })
 </script>
+<template>
+  <div class="product-detail">
+    <div v-if="product" class="container">
+      <router-link to="/" class="back-link">← Back to Products</router-link>
+      
+      <div class="row my-4">
+      <div class="col p-3">
+        <div class="product-image-large">
+          <img :src="product.image" :alt="product.name" class="rounded" style="width:600px;" />
+        </div>
+      </div>
+      
+        
+        <div class="col p-3">
+          <div class="product-header">
+            <span class="product-category">{{ product.category }}</span>
+            <h1 class="product-title">{{ product.name }}</h1>
+            <div class="product-price">${{ product.price.toFixed(2) }}</div>
+          </div>
+          
+          <div class="product-description">
+            <p>This is a premium quality {{ product.name.toLowerCase() }} in the {{ product.category }} category. 
+            Perfect for everyday use with excellent durability and performance.</p>
+            
+            <div class="features">
+              <h3>Features:</h3>
+              <ul>
+                <li>High-quality materials</li>
+                <li>Excellent durability</li>
+                <li>Great value for money</li>
+                <li>30-day money back guarantee</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="product-actions">
+            <div class="quantity-selector my-2">
+              <button @click="decreaseQuantity" :disabled="quantity <= 1" class="btn btn-danger">-</button>
+              <span style="width:50px;">&nbsp;{{ quantity }} &nbsp;</span>
+              <button @click="increaseQuantity" class="btn btn-primary">+</button>
+            </div>
+            
+            <button @click="addToCart" class="add-to-cart-btn-large">
+              Add to Cart - ${{ (product.price * quantity).toFixed(2) }}
+            </button>
+            
+            <button @click="buyNow" class="buy-now-btn">
+              Buy Now
+            </button>
+          </div>
+          
+          <div class="product-meta">
+            <div class="meta-item">
+              <span class="meta-label">Product ID:</span>
+              <span class="meta-value">{{ product.id }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Category:</span>
+              <span class="meta-value">{{ product.category }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Stock:</span>
+              <span class="meta-value in-stock">In Stock</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      
+      <div class="related-products">
+        <h2>Related Products</h2>
+        <div class="row">
+          
+          <ProductCard 
+            v-for="relatedProduct in relatedProducts" 
+            :key="relatedProduct.id" 
+            :product="relatedProduct"
+          />
+        </div>
+      </div>
+    </div>
+    
+    <div v-else class="product-not-found">
+      <h2>Product not found</h2>
+      <router-link to="/" class="back-to-home">Back to Home</router-link>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { computed, ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import ProductCard from '../components/ProductCard.vue'
+import { useProductStore } from '../stores/productStore'
+
+
+const route = useRoute()
+const productStore = useProductStore()
+const quantity = ref(1)
+
+const product = computed(() => 
+  productStore.getProductById(route.params.id)
+)
+
+const relatedProducts = computed(() => {
+  if (!product.value) return []
+  return productStore.products
+    .filter(p => p.category === product.value.category && p.id !== product.value.id)
+    .slice(0, 3)
+})
+
+const increaseQuantity = () => {
+  quantity.value++
+}
+
+const decreaseQuantity = () => {
+  if (quantity.value > 1) {
+    quantity.value--
+  }
+}
+
+const addToCart = () => {
+  if (product.value) {
+    const productWithQuantity = { ...product.value, quantity: quantity.value }
+    productStore.addToCart(productWithQuantity)
+    alert(`${quantity.value} ${product.value.name}(s) added to cart!`)
+    quantity.value = 1
+  }
+}
+
+const buyNow = () => {
+  addToCart()
+  // In a real app, you would redirect to checkout
+  alert('Redirecting to checkout...')
+}
+
+onMounted(() => {
+  if (!product.value) {
+    console.log('Product not found')
+  }
+})
+</script>
+
 
 
 
