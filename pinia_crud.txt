@@ -168,26 +168,13 @@ components/Header.vue
   <header class="header">
     <div class="container">
       <nav class="navbar">
-        <div class="logo">
-          <router-link to="/" class="logo-link">
-            <h1>ShopVue</h1>
-          </router-link>
+        <div class="logo" >
+          
+            <h1 style="text-decoration:none">Northern City</h1>
+          
         </div>
         
-        <div class="nav-links">
-          <router-link to="/" class="nav-link">Home</router-link>
-          <div class="dropdown">
-            <button class="dropdown-btn">Categories</button>
-            <div class="dropdown-content">
-              <a v-for="category in categories" 
-                 :key="category" 
-                 @click="filterByCategory(category)"
-                 class="dropdown-item">
-                {{ category }}
-              </a>
-            </div>
-          </div>
-        </div>
+        
         
         <div class="cart-section">
           <button class="cart-btn" @click="toggleCart">
@@ -198,9 +185,9 @@ components/Header.vue
             <div v-if="cart.length === 0" class="empty-cart">
               Your cart is empty
             </div>
-            <div v-else>
+            <div v-else class="list-group list-group-flush">
               <div v-for="item in cart" :key="item.id" class="cart-item">
-                <div class="cart-item-info">
+                <div class="list-group-item">
                   <span>{{ item.name }}</span>
                   <span>${{ item.price }} x {{ item.quantity }}</span>
                 </div>
@@ -219,8 +206,10 @@ components/Header.vue
 </template>
 
 <script setup>
-import { useProductStore } from '@/stores/productStore'
+import { useProductStore } from '../stores/productStore'
 import { computed, ref } from 'vue'
+
+
 
 const productStore = useProductStore()
 const showCart = ref(false)
@@ -258,17 +247,17 @@ const checkout = () => {
 components/Footer.vue
 
 
-
 <template>
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
-        <div class="footer-section">
+        <div class="row p-3">
           <h3>ShopVue</h3>
           <p>Your one-stop shop for amazing products</p>
         </div>
         
-        <div class="footer-section">
+        <div class="row p-3">
+        <div class="col">
           <h4>Quick Links</h4>
           <ul>
             <li><router-link to="/">Home</router-link></li>
@@ -278,7 +267,7 @@ components/Footer.vue
           </ul>
         </div>
         
-        <div class="footer-section">
+        <div class="col">
           <h4>Categories</h4>
           <ul>
             <li v-for="category in categories" :key="category">
@@ -287,27 +276,32 @@ components/Footer.vue
           </ul>
         </div>
         
-        <div class="footer-section">
+        <div class="col">
           <h4>Contact Info</h4>
           <p>Email: info@shopvue.com</p>
           <p>Phone: (123) 456-7890</p>
         </div>
       </div>
+      </div>
       
+      <div class="row p-3">
       <div class="footer-bottom">
         <p>&copy; 2024 ShopVue. All rights reserved.</p>
       </div>
+      </div>
+      
     </div>
   </footer>
 </template>
 
 <script setup>
-import { useProductStore } from '@/stores/productStore'
+import { useProductStore } from '../stores/productStore'
 import { computed } from 'vue'
 
 const productStore = useProductStore()
 const categories = computed(() => productStore.categories.filter(c => c !== 'All'))
 </script>
+
 
 
 
