@@ -147,6 +147,11 @@ const routes = [
     name: 'ProductDetail',
     component: ProductDetail,
     props: true
+  },
+ // Redirect to home for unknown routes
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/'
   }
 ]
 
