@@ -2,8 +2,8 @@
 Vue JS 3
 ------------------------
 commands:
-npm create vue@latest my-shop
-cd my-shop
+npm create vue@latest app1
+cd app1
 npm install pinia
 
 npm install
